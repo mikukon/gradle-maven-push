@@ -6,20 +6,27 @@
 
 #require
 GroupId=me.jayi.test
+
 #require
 ArtifactId=lib_oss
+
 #require
 ReleaseVersionName=1.0.0
+
 #require
 SnapShotVersionName=1.0.0-SNAPSHOT
 
 #option
 ReleaseUrl=file:///Users/amos/localMaven
+
 #option
 SnapShotUrl=file:///Users/amos/localSnapShot
+
 #option
 Username=mikukon
+
 #option
 Password=123456aa
+
 #option
 isBuildRelease=false
