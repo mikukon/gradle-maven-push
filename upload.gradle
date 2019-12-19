@@ -1,0 +1,108 @@
+apply plugin: 'maven'
+
+def getGroupId() {
+    Properties properties = new Properties()
+    properties.load project.file('project.properties').newDataInputStream()
+    return properties.getProperty("GroupId")
+}
+
+def getArtifactId() {
+    Properties properties = new Properties()
+    properties.load project.file('project.properties').newDataInputStream()
+    return properties.getProperty("ArtifactId")
+}
+
+def getVersionName() {
+    Properties properties = new Properties()
+    properties.load project.file('project.properties').newDataInputStream()
+
+    def isRelease = getOptionProperty("isBuildRelease")
+    if (isRelease == null || !isRelease.toBoolean()) {
+        return properties.getProperty("SnapShotVersionName")
+    }
+
+    return properties.getProperty("ReleaseVersionName")
+}
+
+
+def getUserName() {
+    return getOptionProperty("Username")
+}
+
+def getPassword() {
+    return getOptionProperty("Password")
+}
+
+def getReleaseUrl() {
+    return getOptionProperty("ReleaseUrl")
+}
+
+def getSnapshotUrl() {
+    return getOptionProperty("SnapShotUrl")
+}
+
+def getOptionProperty(String key) {
+
+    Properties properties = new Properties()
+    properties.load project.file('project.properties').newDataInputStream()
+
+    def ret = properties.getProperty(key)
+    if (ret != null) {
+        return ret
+    }
+
+    if (project.hasProperty(key)) {
+        return project.property(key)
+    }
+
+    return null
+}
+
+afterEvaluate { project ->
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.groupId = getGroupId()
+                pom.artifactId = getArtifactId()
+
+                pom.version = getVersionName()
+
+                repository(url: getReleaseUrl()) {
+                    if (getUserName() != null && getPassword() != null) {
+                        authentication(userName: getUserName(), password: getPassword())
+                    }
+                }
+
+                snapshotRepository(url: getSnapshotUrl()) {
+                    if (getUserName() != null && getPassword() != null) {
+                        authentication(userName: getUserName(), password: getPassword())
+                    }
+                }
+
+//                pom.project {
+//                    dependencies {
+//                        project.configurations.collectMany { it.allDependencies }
+//                                .findAll { it instanceof ProjectDependency ||
+//                                it instanceof ExternalModuleDependency}
+//                        .each { dep ->
+//                            dependency {
+//                                groupId dep.getGroup()
+//                                artifactId dep.getName()
+//                                version dep.getVersion()
+//                            }
+//                        }
+//                    }
+//                }
+            }
+        }
+    }
+}
+
+
+//def path = getProjectDir().path
+//println "===================>>>" + path
+//println "===================>>>" + getGroupId()
+//println "===================>>>" + getArtifactId()
+//println "===================>>>" + getVersionName()
+//println "===================>>>" + getUserName()
+//println "===================>>>" + getPassword()
